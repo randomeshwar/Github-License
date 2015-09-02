@@ -1,0 +1,59 @@
+import csv
+import json
+import urllib2
+import requests
+import urlparse
+
+#Open CSV and capture repo url
+with open('/Users/medapa/Dropbox/HEC/Python/Data/git_archive_sample2.csv', 'r+b') as git_archive:
+    git_archive_data = csv.reader(git_archive)
+    repo_license = [''] 
+    i=0
+    repo_license[0] = str('license_name') 
+    new_csv = []
+    
+    with open('/Users/medapa/Dropbox/HEC/Python/Data/git_archive_append.csv', 'wb') as git_append:
+        git_archive_write = csv.writer(git_append)
+        
+#for each row in the CSV file find the repo url   
+        for row in git_archive_data:
+            license_url = row[5]+'/license'
+            print license_url
+            parsed_url = urlparse.urlparse(license_url) # check if the url schema is correct
+            if bool(parsed_url.scheme) == 0 : 
+                if i == 0 : 
+                    row.append(repo_license[i])
+                    new_csv.append(row)
+                    i=i+1
+                    continue
+                else:
+                    repo_license.append(str('Unknown Error'))
+                    row.append(repo_license[i])
+                    new_csv.append(row)
+                    i=i+1
+                    continue
+                
+#Get the license data from the url in JSON format
+            r = requests.get(license_url, auth=('km-poonacha', 'rand276eshwar'))
+    #       print r.status_code
+    #       print r.headers['content-type']
+    #       print r.headers['X-RateLimit-Limit']
+            print r.headers['X-RateLimit-Remaining']
+        
+            if r.status_code == 200 :
+                values = r.json()
+                repo_license.append(str(values['license']['name']))
+            elif r.status_code == 404 : 
+                repo_license.append(str("Not Found"))
+            else: repo_license.append(str("Unknown Error"))
+
+#Append license data to the csv file
+            
+            row.append(repo_license[i])
+            new_csv.append(row)
+            i=i+1
+       
+           
+        git_archive_write.writerows(new_csv)
+        print repo_license
+
