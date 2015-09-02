@@ -1,0 +1,27 @@
+import csv
+import json
+import urllib2
+import requests
+json.dumps(['foo', {'bar': ('baz', None, 1.0, 2)}])
+print json.dumps("\"foo\bar")
+print json.dumps(u'\u1234')
+print json.dumps('\\')
+print json.dumps({"c": 0, "b": 0, "a": 0}, sort_keys=True)
+print json.dumps({'4': 5, '6': 7}, sort_keys=True,indent=4, separators=(',', ': '))
+
+# reading Github data 
+#gh_url = 'https://api.github.com/repos/lexci-lint/turbo-adventure/license'
+#req = urllib2.Request(gh_url)
+#handler = urllib2.urlopen(req)
+#print handler.getcode()
+#print handler.headers.getheader('mit')
+
+r = requests.get('https://api.github.com/repos/wbssergey/mvtspro_php/license', auth=('km-poonacha', 'rand276eshwar'))
+print r.status_code
+print r.headers['content-type']
+print r.headers['X-RateLimit-Limit']
+#print r.text
+#print r.headers
+values = r.json()
+license = values['license']['key']
+print license
